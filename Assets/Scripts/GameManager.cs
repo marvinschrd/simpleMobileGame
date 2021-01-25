@@ -2,19 +2,24 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField]private GameObject normalBlock;
+    [SerializeField] int baseHitpoints;
+    [SerializeField] private List<GameObject> SpecialBlocks = new List<GameObject>();
+    
     class BlockSpawn
     {
         public Vector2 position;
-        private int type;
-        private int hitPoints;
+        public int hitPoints;
+        public Vector4 color;
+        public bool isNormal;
     }
-
+    
     private List<BlockSpawn> _blockSpawns = new List<BlockSpawn>();
-
+    
     private List<GameObject> blocks = new List<GameObject>();
     // Start is called before the first frame update
     void Start()
@@ -26,39 +31,79 @@ public class GameManager : MonoBehaviour
             spawn.position = new Vector2(xPosition, 9.5f);
             _blockSpawns.Add(spawn);
             xPosition += 1.6f;
+            Debug.Log("??");
         }
-        
-        SpawnBlocks();
+        //SetBlockSpawns();
+        //SpawnBlocks();
     }
     
     
     void Update()
     {
-        if (Input.GetButtonDown("Fire1"))
-        {
-            MoveBlock();
-            SpawnBlocks();
-        }
+        // if (Input.GetButtonDown("Fire1"))
+        // {
+        //     MoveBlock();
+        //     baseHitpoints += 2;
+        //     SetBlockSpawns();
+        //    // SpawnBlocks();
+        // }
     }
-
-
-
-    void SpawnBlocks()
-    {
-        foreach (BlockSpawn spawn in _blockSpawns)
-        {
-            GameObject newBlock;
-            newBlock = Instantiate(normalBlock, spawn.position, quaternion.identity);
-            blocks.Add(newBlock);
-        }
-    }
-
+    
     void MoveBlock()
     {
         foreach ( GameObject block in blocks)
         {
-            block.transform.position = new Vector2(block.transform.position.x, block.transform.position.y - 1);
+            block.transform.position = new Vector2(block.transform.position.x, block.transform.position.y - 1.5f);
         }
     }
     
+    void SetBlockSpawns()
+    {
+        Vector4 newColor = Random.ColorHSV();
+        foreach (BlockSpawn spawns in _blockSpawns)
+        {
+            //Select if block will be normal or special
+            int prob = Random.Range(0, 2);
+            if (prob != 2)
+            {
+                spawns.isNormal = true;
+                spawns.color = newColor;
+            }
+            else
+            {
+                spawns.isNormal = false;
+            }
+            spawns.hitPoints = baseHitpoints;
+            Debug.Log("is normal = " + spawns.isNormal);
+        }
+    }
+    void SpawnBlocks()
+    {
+        foreach (BlockSpawn spawn in _blockSpawns)
+        {
+            // GameObject newBlock;
+            // newBlock = Instantiate(normalBlock, spawn.position, quaternion.identity);
+            // blocks.Add(newBlock);
+            if (spawn.isNormal)
+            {
+                NormalBlock newBlockScript = normalBlock.GetComponent<NormalBlock>();
+                //Set hit points
+                //newBlockScript.SetHitpoints(spawn.hitPoints);
+                //Set color
+               // newBlockScript.SetSpriteColor(spawn.color);
+                GameObject instiantiatedBlock = Instantiate(normalBlock, spawn.position, quaternion.identity);
+                blocks.Add(instiantiatedBlock);
+                Debug.Log("trying");
+            }
+            else
+            {
+                int rand = Random.Range(0, SpecialBlocks.Count);
+                GameObject specialBlock = SpecialBlocks[rand];
+                NormalBlock blockScript = specialBlock.GetComponent<NormalBlock>();
+                //blockScript.SetHitpoints(spawn.hitPoints);
+                GameObject instatiatedSpecialBlock = Instantiate(specialBlock, spawn.position, quaternion.identity);
+                blocks.Add(instatiatedSpecialBlock);
+            }
+        }
+    }
 }
