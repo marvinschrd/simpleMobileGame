@@ -40,18 +40,7 @@ public class GameManager : MonoBehaviour
     //
     void Update()
     {
-        // if (Input.GetButtonDown("Fire1"))
-        // {
-        //     MoveBlock();
-        //     baseHitpoints += 2;
-        //     SetBlockSpawns();
-        //    // SpawnBlocks();
-        // }
-    }
-    
-    void MoveBlock()
-    {
-        foreach ( GameObject block in blocks)
+        if (Input.GetButtonDown("Fire1"))
         {
             MoveBlock();
             baseHitpoints += 2;
@@ -59,6 +48,7 @@ public class GameManager : MonoBehaviour
             SpawnBlocks();
         }
     }
+    
     //
     void MoveBlock()
     {
